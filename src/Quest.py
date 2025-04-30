@@ -169,10 +169,10 @@ class QuestObject:
             iBetaMean=num.sum(p2/beta2)/p
             iBetaSd=math.sqrt(num.sum(p2/beta2**2)/p-(num.sum(p2/beta2)/p)**2)
             stream.write('%5.2f	%5.2f	%4.1f	%4.1f	%6.3f\n'%(t,sd,1/iBetaMean,betaSd,self.gamma))
-        print 'Now re-analyzing with beta as a free parameter. . . .'
+        print ('Now re-analyzing with beta as a free parameter. . . .')
         if stream is None:
             stream=sys.stdout
-        stream.write('logC 	 sd 	 beta	 sd	 gamma\n');
+        stream.write('logC 	 sd 	 beta	 sd	 gamma\n')
         beta_analysis1(stream)
 
     def mean(self):
@@ -341,7 +341,7 @@ class QuestObject:
             if not num.allclose(ii,iii):
                 raise ValueError('truncation error')
             self.pdf = self.pdf*self.s2[response,iii]
-            if self.normalizePdf and k%100==0:
+            if self.normalizePdf:
                 self.pdf = self.pdf/num.sum(self.pdf) # avoid underflow; keep the pdf normalized
         if self.normalizePdf:
             self.pdf = self.pdf/num.sum(self.pdf) # avoid underflow; keep the pdf normalized
@@ -418,23 +418,23 @@ def demo():
     psychometric method. Percept Psychophys, 33 (2), 113-20.
     """
     
-    print 'The intensity scale is abstract, but usually we think of it as representing log contrast.'
+    print ('The intensity scale is abstract, but usually we think of it as representing log contrast.')
 
     tActual = None
     while tActual is None:
         sys.stdout.write('Specify true threshold of simulated observer: ')
-        input = raw_input()
+        user_input = input()
         try:
-            tActual = float(input)
+            tActual = float(user_input)
         except:
             pass
     
     tGuess = None
     while tGuess is None:
         sys.stdout.write('Estimate threshold: ')
-        input = raw_input()
+        user_input = input()
         try:
-            tGuess = float(input)
+            tGuess = float(user_input)
         except:
             pass
     
@@ -447,7 +447,7 @@ def demo():
     
     # Simulate a series of trials.
     trialsDesired=100
-    wrongRight = 'wrong', 'right'
+    wrongRight = ('wrong', 'right')
     timeZero=time.time()
     for k in range(trialsDesired):
         # Get recommended level.  Choose your favorite algorithm.
@@ -458,29 +458,29 @@ def demo():
         tTest=tTest+random.choice([-0.1,0,0.1])
 
         # Simulate a trial
-	timeSplit=time.time(); # omit simulation and printing from reported time/trial.
-        response=q.simulate(tTest,tActual)
-        print 'Trial %3d at %4.1f is %s'%(k+1,tTest,wrongRight[int(response)])
-	timeZero=timeZero+time.time()-timeSplit;
-        
+        timeSplit = time.time()  # omit simulation and printing from reported time/trial.
+        response = q.simulate(tTest, tActual)
+        print('Trial %3d at %4.1f is %s' % (k + 1, tTest, wrongRight[int(response)]))
+        timeZero = timeZero + time.time() - timeSplit
+
         # Update the pdf
-	q.update(tTest,response);
+        q.update(tTest, response)
 
     # Print results of timing.
-    print '%.0f ms/trial'%(1000*(time.time()-timeZero)/trialsDesired)
+    print('%.0f ms/trial' % (1000 * (time.time() - timeZero) / trialsDesired))
 
     # Get final estimate.
     t=q.mean()
     sd=q.sd()
-    print 'Mean threshold estimate is %4.2f +/- %.2f'%(t,sd)
+    print('Mean threshold estimate is %4.2f +/- %.2f' % (t, sd))
     #t=QuestMode(q);
     #print 'Mode threshold estimate is %4.2f'%t
 
-    print '\nQuest beta analysis. Beta controls the steepness of the Weibull function.\n'
+    print('\nQuest beta analysis. Beta controls the steepness of the Weibull function.\n')
     q.beta_analysis()
-    print 'Actual parameters of simulated observer:'
-    print 'logC	beta	gamma'
-    print '%5.2f	%4.1f	%5.2f'%(tActual,q.beta,q.gamma)
+    print('Actual parameters of simulated observer:')
+    print('logC\tbeta\tgamma')
+    print('%5.2f\t%4.1f\t%5.2f' % (tActual, q.beta, q.gamma))
     
 if __name__ == '__main__':
     demo() # run the demo
